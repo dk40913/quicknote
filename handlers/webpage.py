@@ -20,13 +20,13 @@ def fetch(url: str, lang: str = "zh-tw", model: str = DEFAULT_MODEL) -> dict:
     # Fallback：OpenCLI 抓網頁文字
     subprocess.run(
         [OPENCLI_BIN, "browser", "open", url],
-        capture_output=True, text=True, timeout=30
+        capture_output=True, text=True, timeout=120
     )
     time.sleep(3)
 
     text_result = subprocess.run(
         [OPENCLI_BIN, "browser", "eval", "document.body.innerText"],
-        capture_output=True, text=True, timeout=15
+        capture_output=True, text=True, timeout=120
     )
 
     summary = summarize_with_gemma(text_result.stdout, lang=lang, model=model)

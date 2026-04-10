@@ -57,14 +57,14 @@ def _fetch_video(url: str, lang: str, model: str) -> dict:
 def _fetch_post(url: str, lang: str, model: str) -> dict:
     subprocess.run(
         [OPENCLI_BIN, "browser", "open", url],
-        capture_output=True, text=True, timeout=30
+        capture_output=True, text=True, timeout=120
     )
     time.sleep(3)
 
     # 抓初始文字，偵測分段數（例如 "1/3" 代表共 3 段）
     text_result = subprocess.run(
         [OPENCLI_BIN, "browser", "eval", "document.body.innerText"],
-        capture_output=True, text=True, timeout=15
+        capture_output=True, text=True, timeout=120
     )
     initial_text = text_result.stdout
 
@@ -78,13 +78,13 @@ def _fetch_post(url: str, lang: str, model: str) -> dict:
         for _ in range(total_parts - 1):
             subprocess.run(
                 [OPENCLI_BIN, "browser", "eval", "window.scrollBy(0, window.innerHeight)"],
-                capture_output=True, text=True, timeout=10
+                capture_output=True, text=True, timeout=120
             )
             time.sleep(2)
 
         text_result = subprocess.run(
             [OPENCLI_BIN, "browser", "eval", "document.body.innerText"],
-            capture_output=True, text=True, timeout=15
+            capture_output=True, text=True, timeout=120
         )
 
     if not text_result.stdout.strip():

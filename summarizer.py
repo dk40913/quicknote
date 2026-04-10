@@ -75,7 +75,7 @@ def summarize_with_notebooklm(url: str, lang: str = "zh-tw") -> str:
 
     result = subprocess.run(
         [NOTEBOOKLM_BIN, "create", "--name", f"quicknote_{int(time.time())}"],
-        capture_output=True, text=True, timeout=30
+        capture_output=True, text=True, timeout=120
     )
     if result.returncode != 0:
         raise RuntimeError(f"notebooklm create 失敗: {result.stderr.strip()}")
@@ -102,7 +102,7 @@ def summarize_with_notebooklm(url: str, lang: str = "zh-tw") -> str:
     # 清理 notebook，避免污染帳號
     subprocess.run(
         [NOTEBOOKLM_BIN, "delete", notebook_id],
-        capture_output=True, text=True, timeout=30
+        capture_output=True, text=True, timeout=120
     )
 
     return answer

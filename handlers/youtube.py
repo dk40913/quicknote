@@ -19,7 +19,7 @@ def fetch(url: str, lang: str = "zh-tw", model: str = None) -> dict:
             [YTDLP_BIN, "--write-thumbnail", "--skip-download",
              "--convert-thumbnails", "jpg",
              "-o", str(tmp_path / "thumb"), url],
-            capture_output=True, timeout=30
+            capture_output=True, timeout=120
         )
         thumb = next(tmp_path.glob("thumb*.jpg"), None)
 
