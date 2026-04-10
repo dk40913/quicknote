@@ -1,8 +1,6 @@
 # handlers/instagram.py
 import re
 import subprocess
-import tempfile
-import shutil
 import time
 from pathlib import Path
 from summarizer import summarize_with_gemma
@@ -27,7 +25,7 @@ def _fetch_video(url: str, lang: str, model: str) -> dict:
         result = subprocess.run(
             [YTDLP_BIN, "--cookies-from-browser", "chrome",
              "-o", str(video_path), url],
-            capture_output=True, text=True
+            capture_output=True, text=True, timeout=120
         )
         if result.returncode != 0:
             raise RuntimeError(
@@ -38,8 +36,9 @@ def _fetch_video(url: str, lang: str, model: str) -> dict:
         frames_dir.mkdir()
         subprocess.run(
             [FFMPEG_BIN, "-i", str(video_path), "-vf", "fps=1",
+             "-vframes", "60",
              str(frames_dir / "frame_%03d.jpg"), "-y"],
-            capture_output=True
+            capture_output=True, timeout=60
         )
 
         frames = sorted(frames_dir.glob("*.jpg"))
@@ -48,13 +47,9 @@ def _fetch_video(url: str, lang: str, model: str) -> dict:
 
         summary = summarize_with_gemma(frames, lang=lang, model=model)
 
-        # 把第一張影格複製出來當縮圖（避免 tmp 被清掉）
-        saved_thumb = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False)
-        shutil.copy2(frames[0], saved_thumb.name)
-
         return {
             "summary": summary,
-            "image_path": Path(saved_thumb.name),
+            "image_path": None,
             "processed_by": model
         }
 
@@ -62,14 +57,14 @@ def _fetch_video(url: str, lang: str, model: str) -> dict:
 def _fetch_post(url: str, lang: str, model: str) -> dict:
     subprocess.run(
         [OPENCLI_BIN, "browser", "open", url],
-        capture_output=True, text=True
+        capture_output=True, text=True, timeout=30
     )
     time.sleep(3)
 
     # 抓初始文字，偵測分段數（例如 "1/3" 代表共 3 段）
     text_result = subprocess.run(
         [OPENCLI_BIN, "browser", "eval", "document.body.innerText"],
-        capture_output=True, text=True
+        capture_output=True, text=True, timeout=15
     )
     initial_text = text_result.stdout
 
@@ -83,26 +78,22 @@ def _fetch_post(url: str, lang: str, model: str) -> dict:
         for _ in range(total_parts - 1):
             subprocess.run(
                 [OPENCLI_BIN, "browser", "eval", "window.scrollBy(0, window.innerHeight)"],
-                capture_output=True, text=True
+                capture_output=True, text=True, timeout=10
             )
             time.sleep(2)
 
         text_result = subprocess.run(
             [OPENCLI_BIN, "browser", "eval", "document.body.innerText"],
-            capture_output=True, text=True
+            capture_output=True, text=True, timeout=15
         )
 
-    saved_screenshot = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False)
-    subprocess.run(
-        [OPENCLI_BIN, "browser", "screenshot", saved_screenshot.name],
-        capture_output=True
-    )
+    if not text_result.stdout.strip():
+        raise RuntimeError("無法取得頁面內容，請確認 opencli daemon 正在執行且已登入")
 
     summary = summarize_with_gemma(text_result.stdout, lang=lang, model=model)
 
-    screenshot_path = Path(saved_screenshot.name)
     return {
         "summary": summary,
-        "image_path": screenshot_path if screenshot_path.exists() else None,
+        "image_path": None,
         "processed_by": model
     }

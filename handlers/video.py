@@ -1,7 +1,5 @@
 # handlers/video.py
 import subprocess
-import tempfile
-import shutil
 from pathlib import Path
 from summarizer import summarize_with_gemma
 from config import YTDLP_BIN, FFMPEG_BIN, DEFAULT_MODEL
@@ -14,7 +12,7 @@ def fetch(url: str, lang: str = "zh-tw", model: str = DEFAULT_MODEL) -> dict:
 
         result = subprocess.run(
             [YTDLP_BIN, "-o", str(video_path), url],
-            capture_output=True, text=True
+            capture_output=True, text=True, timeout=120
         )
         if result.returncode != 0:
             raise RuntimeError(f"影片下載失敗: {result.stderr[:200]}")
@@ -23,8 +21,9 @@ def fetch(url: str, lang: str = "zh-tw", model: str = DEFAULT_MODEL) -> dict:
         frames_dir.mkdir()
         subprocess.run(
             [FFMPEG_BIN, "-i", str(video_path), "-vf", "fps=1",
+             "-vframes", "60",
              str(frames_dir / "frame_%03d.jpg"), "-y"],
-            capture_output=True
+            capture_output=True, timeout=60
         )
 
         frames = sorted(frames_dir.glob("*.jpg"))
@@ -33,11 +32,8 @@ def fetch(url: str, lang: str = "zh-tw", model: str = DEFAULT_MODEL) -> dict:
 
         summary = summarize_with_gemma(frames, lang=lang, model=model)
 
-        saved_thumb = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False)
-        shutil.copy2(frames[0], saved_thumb.name)
-
         return {
             "summary": summary,
-            "image_path": Path(saved_thumb.name),
+            "image_path": None,
             "processed_by": model
         }

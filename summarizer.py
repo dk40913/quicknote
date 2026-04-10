@@ -5,16 +5,12 @@ from pathlib import Path
 from typing import Union
 from config import GOOGLE_API_KEY, DEFAULT_MODEL, NOTEBOOKLM_BIN
 
-globals().setdefault('genai', None)
-globals().setdefault('genai_types', None)
-
-if genai is None:
-    try:
-        from google import genai
-        from google.genai import types as genai_types
-    except ImportError:
-        genai = None
-        genai_types = None
+try:
+    from google import genai
+    from google.genai import types as genai_types
+except ImportError:
+    genai = None
+    genai_types = None
 
 
 def _build_prompt(lang: str) -> str:
@@ -32,6 +28,8 @@ def summarize_with_gemma(
     lang: str = "zh-tw",
     model: str = DEFAULT_MODEL
 ) -> str:
+    if genai is None:
+        raise RuntimeError("google-genai 未安裝，請執行：pip install google-genai")
     client = genai.Client(api_key=GOOGLE_API_KEY)
     prompt = _build_prompt(lang)
 
@@ -87,4 +85,12 @@ def summarize_with_notebooklm(url: str, lang: str = "zh-tw") -> str:
     if result.returncode != 0:
         raise RuntimeError(f"notebooklm ask 失敗: {result.stderr.strip()}")
 
-    return result.stdout.strip()
+    answer = result.stdout.strip()
+
+    # 清理 notebook，避免污染帳號
+    subprocess.run(
+        [NOTEBOOKLM_BIN, "delete", notebook_id],
+        capture_output=True, text=True, timeout=30
+    )
+
+    return answer

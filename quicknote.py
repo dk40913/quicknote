@@ -32,7 +32,11 @@ def main():
     args = parser.parse_args()
 
     print(f"🔍 分析 URL：{args.url}")
-    url_type = detect(args.url)
+    try:
+        url_type = detect(args.url)
+    except ValueError as e:
+        print(f"❌ 無效的 URL：{e}")
+        sys.exit(1)
     print(f"📌 類型：{url_type.value}")
 
     handler = HANDLER_MAP[url_type]
@@ -50,14 +54,17 @@ def main():
         print(f"📝 已存待處理筆記：{note_path}")
         sys.exit(1)
 
+    tmp_img = result.get("image_path")
     note_path = write_note(
         url=args.url,
         url_type=url_type.value,
         summary=result["summary"],
         processed_by=result["processed_by"],
-        image_path=result.get("image_path"),
+        image_path=tmp_img,
         lang=args.lang,
     )
+    if tmp_img and tmp_img.exists():
+        tmp_img.unlink(missing_ok=True)
     print(f"✅ 筆記已存入：{note_path}")
 
 if __name__ == "__main__":

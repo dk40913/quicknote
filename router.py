@@ -1,5 +1,6 @@
 # router.py
 from urllib.parse import urlparse
+from pathlib import PurePosixPath
 from enum import Enum
 
 class URLType(Enum):
@@ -21,6 +22,6 @@ def detect(url: str) -> URLType:
         return URLType.YOUTUBE
     if "instagram.com" in host or "threads.net" in host or "threads.com" in host or "facebook.com" in host:
         return URLType.INSTAGRAM
-    if any(path.endswith(ext) for ext in [".mp4", ".mov", ".webm"]):
+    if PurePosixPath(parsed.path).suffix.lower() in {".mp4", ".mov", ".webm"}:
         return URLType.VIDEO
     return URLType.WEBPAGE

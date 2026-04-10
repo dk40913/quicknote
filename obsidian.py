@@ -55,11 +55,16 @@ def write_note(
 
     body = "\n".join(l for l in summary.splitlines() if not l.startswith("TITLE:")).strip()
 
-    safe_title = title.replace('"', '\\"')
-    safe_url = url.replace('"', '\\"')
+    def _yaml_str(value: str) -> str:
+        value = value.replace('\r', '').replace('\n', ' ')
+        value = value.replace('\\', '\\\\').replace('"', '\\"')
+        return f'"{value}"'
+
+    safe_title = _yaml_str(title)
+    safe_url = _yaml_str(url)
     content = f"""---
-title: "{safe_title}"
-source: "{safe_url}"
+title: {safe_title}
+source: {safe_url}
 type: {url_type}
 date: {today}
 tags:

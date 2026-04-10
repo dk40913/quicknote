@@ -63,8 +63,21 @@ pip install -r requirements.txt
 > 之後每次使用前需要先啟動虛擬環境：`source .venv/bin/activate`
 
 ### 3. 安裝外部工具
+
+**yt-dlp**（下載 YouTube / Instagram 影片）和 **ffmpeg**（影片抽影格）：
 ```bash
 brew install yt-dlp ffmpeg
+```
+
+**opencli**（控制瀏覽器，用於抓取 Instagram / Threads 文字貼文與一般網頁）和 **notebooklm-py**（用於分析 YouTube 和一般網頁）透過 `uv` 安裝。
+
+若尚未安裝 `uv`（Python 工具管理器）：
+```bash
+brew install uv
+```
+
+然後安裝工具：
+```bash
 uv tool install opencli
 uv tool install notebooklm-py
 ```
@@ -97,17 +110,30 @@ python3 quicknote.py https://... --model gemma-4-31b-it
 
 安裝後可以在 Claude Code 對話中直接說「幫我整理這個網址 https://...」來觸發。
 
-在 Claude Code 對話中執行：
+### 1. Clone 專案並完成環境設定
+
+先完成上方「安裝」章節的所有步驟（建立 venv、安裝套件、設定 .env）。
+
+### 2. 編輯 SKILL.md，填入你的路徑
+
+編輯 `skills/quicknote/SKILL.md`，把佔位符換成你的實際路徑：
+
+```
+/Users/yourname/Documents/quicknote/.venv/bin/python3 /Users/yourname/Documents/quicknote/quicknote.py <URL>
+```
+
+> 路徑要指向虛擬環境裡的 python3（`.venv/bin/python3`），不是系統的 `python3`。
+
+### 3. 在 Claude Code 中安裝
 
 ```
 /plugin marketplace add dk40913/quicknote
 /plugin install quicknote@dk40913-quicknote
 ```
 
-安裝完成後，編輯 `~/.claude/plugins/cache/.../skills/quicknote/SKILL.md`，把路徑改成你的實際位置：
+### 4. 使用
 
+在對話中直接說：
 ```
-/Users/yourname/Documents/quicknote/.venv/bin/python3 /Users/yourname/Documents/quicknote/quicknote.py <URL>
+幫我整理這個網址 https://...
 ```
-
-> 注意：路徑要指向虛擬環境裡的 python3（`.venv/bin/python3`），不是系統的 `python3`。
