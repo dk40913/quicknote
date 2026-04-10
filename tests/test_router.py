@@ -32,3 +32,16 @@ def test_general_webpage():
 
 def test_github():
     assert detect("https://github.com/user/repo") == URLType.WEBPAGE
+
+def test_direct_webm():
+    assert detect("https://example.com/clip.webm") == URLType.VIDEO
+
+def test_invalid_url_raises():
+    import pytest
+    with pytest.raises(ValueError):
+        detect("")
+
+def test_non_url_raises():
+    import pytest
+    with pytest.raises(ValueError):
+        detect("not a url")

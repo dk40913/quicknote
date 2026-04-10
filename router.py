@@ -9,7 +9,11 @@ class URLType(Enum):
     WEBPAGE = "webpage"
 
 def detect(url: str) -> URLType:
+    if not url or not url.strip():
+        raise ValueError(f"Invalid URL: {url!r}")
     parsed = urlparse(url)
+    if not parsed.scheme or not parsed.netloc:
+        raise ValueError(f"Invalid URL: {url!r}")
     host = parsed.netloc.lower()
     path = parsed.path.lower()
 
