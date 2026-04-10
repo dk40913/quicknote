@@ -19,7 +19,7 @@ def detect(url: str) -> URLType:
 
     if "youtube.com" in host or "youtu.be" in host:
         return URLType.YOUTUBE
-    if "instagram.com" in host or "threads.net" in host or "facebook.com" in host:
+    if "instagram.com" in host or "threads.net" in host or "threads.com" in host or "facebook.com" in host:
         return URLType.INSTAGRAM
     if any(path.endswith(ext) for ext in [".mp4", ".mov", ".webm"]):
         return URLType.VIDEO

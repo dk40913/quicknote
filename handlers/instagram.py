@@ -1,4 +1,5 @@
 # handlers/instagram.py
+import re
 import subprocess
 import tempfile
 import shutil
@@ -65,10 +66,30 @@ def _fetch_post(url: str, lang: str, model: str) -> dict:
     )
     time.sleep(3)
 
+    # 抓初始文字，偵測分段數（例如 "1/3" 代表共 3 段）
     text_result = subprocess.run(
         [OPENCLI_BIN, "browser", "eval", "document.body.innerText"],
         capture_output=True, text=True
     )
+    initial_text = text_result.stdout
+
+    match = re.search(r'1/(\d+)', initial_text)
+    total_parts = int(match.group(1)) if match else 1
+
+    # 根據段數滾動載入剩餘回覆
+    if total_parts > 1:
+        print(f"  偵測到 {total_parts} 段回覆，滾動載入...")
+        for _ in range(total_parts - 1):
+            subprocess.run(
+                [OPENCLI_BIN, "browser", "eval", "window.scrollBy(0, window.innerHeight)"],
+                capture_output=True, text=True
+            )
+            time.sleep(2)
+
+        text_result = subprocess.run(
+            [OPENCLI_BIN, "browser", "eval", "document.body.innerText"],
+            capture_output=True, text=True
+        )
 
     saved_screenshot = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False)
     subprocess.run(
