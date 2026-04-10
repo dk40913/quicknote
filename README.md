@@ -59,4 +59,10 @@ mkdir -p ~/.claude/plugins/quicknote
 cp skill.md ~/.claude/plugins/quicknote/
 ```
 
+安裝後，編輯 `~/.claude/plugins/quicknote/skill.md`，把路徑改成你的專案位置：
+
+```
+python3 /你的路徑/quicknote/quicknote.py <URL>
+```
+
 然後在 Claude Code 對話中說：「幫我整理這個網址 https://...」
