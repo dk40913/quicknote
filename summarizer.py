@@ -57,8 +57,7 @@ def summarize_with_gemma(
                 print(f"  Rate limit，等待 {wait} 秒後重試（{attempt + 1}/3）...")
                 time.sleep(wait)
             else:
-                raise
-    return ""
+                raise  # re-raises on final attempt or non-rate-limit errors
 
 
 def summarize_with_notebooklm(url: str, lang: str = "zh-tw") -> str:
