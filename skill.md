@@ -9,17 +9,22 @@ description: 給定 URL，自動擷取內容、生成摘要，存入 Obsidian �
 
 ## 安裝注意
 
-安裝前請先編輯這個檔案，把 `QUICKNOTE_PATH` 改成你實際的專案路徑：
+安裝前請先編輯這個檔案，把路徑改成你實際的專案位置。
+需要指向虛擬環境的 python3，確保套件正確載入：
 
 ```
-QUICKNOTE_PATH=~/Documents/Claude/Projects/quicknote
+/你的路徑/quicknote/.venv/bin/python3 /你的路徑/quicknote/quicknote.py <URL>
+```
+
+例如：
+```
+/Users/yourname/Documents/quicknote/.venv/bin/python3 /Users/yourname/Documents/quicknote/quicknote.py <URL>
 ```
 
 ## 執行步驟
 
 1. 從使用者訊息取出 URL
-2. 執行：`python3 QUICKNOTE_PATH/quicknote.py <URL>`
-   （將 QUICKNOTE_PATH 替換成你設定的路徑）
+2. 執行：`/你的路徑/quicknote/.venv/bin/python3 /你的路徑/quicknote/quicknote.py <URL>`
 3. 回報筆記存入位置
 
 ## 可選參數
@@ -30,4 +35,4 @@ QUICKNOTE_PATH=~/Documents/Claude/Projects/quicknote
 ## 範例
 
 使用者：「幫我整理 https://www.youtube.com/watch?v=xxx」
-執行：`python3 ~/Documents/Claude/Projects/quicknote/quicknote.py https://www.youtube.com/watch?v=xxx`
+執行：`/Users/yourname/Documents/quicknote/.venv/bin/python3 /Users/yourname/Documents/quicknote/quicknote.py https://www.youtube.com/watch?v=xxx`
