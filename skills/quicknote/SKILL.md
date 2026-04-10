@@ -25,6 +25,7 @@ description: 給定 URL，自動擷取內容、生成摘要，存入 Obsidian �
 
 1. 從使用者訊息取出 URL
 2. 執行：`/Users/herb/Documents/Claude/Projects/quicknote/.venv/bin/python3 /Users/herb/Documents/Claude/Projects/quicknote/quicknote.py <URL>`
+   - **不設 timeout**，由程式碼內部控制，避免外層過早中斷
 3. 回報筆記存入位置
 
 ## 可選參數
@@ -35,4 +36,4 @@ description: 給定 URL，自動擷取內容、生成摘要，存入 Obsidian �
 ## 範例
 
 使用者：「幫我整理 https://www.youtube.com/watch?v=xxx」
-執行：`/Users/yourname/Documents/quicknote/.venv/bin/python3 /Users/yourname/Documents/quicknote/quicknote.py https://www.youtube.com/watch?v=xxx`
+執行：`<你的路徑>/.venv/bin/python3 <你的路徑>/quicknote.py https://www.youtube.com/watch?v=xxx`
