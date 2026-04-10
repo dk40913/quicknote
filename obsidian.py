@@ -8,25 +8,30 @@ from config import OBSIDIAN_PATH
 NOTE_DIR = Path(OBSIDIAN_PATH) / "隨手筆記"
 ATTACHMENT_DIR = NOTE_DIR / "attachments"
 
+
 def _slug(title: str) -> str:
     title = re.sub(r'[^\w\s-]', '', title)
     title = re.sub(r'\s+', '_', title.strip())
-    return title[:40]
+    return title[:40] or "unnamed"
+
 
 def _extract_title(summary: str) -> str:
+    first_non_empty = None
     for line in summary.splitlines():
         if line.startswith("TITLE:"):
             return line.replace("TITLE:", "").strip()
-    for line in summary.splitlines():
-        if line.strip():
-            return line.strip()[:30]
-    return "未命名筆記"
+        if first_non_empty is None and line.strip():
+            first_non_empty = line.strip()[:30]
+    return first_non_empty or "未命名筆記"
 
-def save_attachment(image_path: Path) -> str:
+
+def save_attachment(image_path: Path, slug: str = "") -> str:
     ATTACHMENT_DIR.mkdir(parents=True, exist_ok=True)
-    dest = ATTACHMENT_DIR / image_path.name
+    stem = f"{slug}_" if slug else ""
+    dest = ATTACHMENT_DIR / f"{stem}{image_path.name}"
     shutil.copy2(image_path, dest)
-    return image_path.name
+    return dest.name
+
 
 def write_note(
     url: str,
@@ -45,15 +50,16 @@ def write_note(
 
     image_embed = ""
     if image_path and image_path.exists():
-        filename = save_attachment(image_path)
+        filename = save_attachment(image_path, slug=slug)
         image_embed = f"\n![[{filename}]]\n"
 
-    body_lines = [l for l in summary.splitlines() if not l.startswith("TITLE:")]
-    body = "\n".join(body_lines).strip()
+    body = "\n".join(l for l in summary.splitlines() if not l.startswith("TITLE:")).strip()
 
+    safe_title = title.replace('"', '\\"')
+    safe_url = url.replace('"', '\\"')
     content = f"""---
-title: {title}
-source: {url}
+title: "{safe_title}"
+source: "{safe_url}"
 type: {url_type}
 date: {today}
 tags:
