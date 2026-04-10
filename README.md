@@ -102,10 +102,21 @@ mkdir -p ~/.claude/plugins/quicknote
 cp skill.md ~/.claude/plugins/quicknote/
 ```
 
-編輯 `~/.claude/plugins/quicknote/skill.md`，把路徑改成你的專案實際位置：
+編輯 `~/.claude/plugins/quicknote/skill.md`，找到執行指令那行，把佔位符換成你的實際路徑：
 
+```bash
+# 先確認你的專案路徑
+pwd  # 在 quicknote 目錄下執行，複製這個路徑
+```
+
+把 skill.md 裡的這行：
 ```
 /你的路徑/quicknote/.venv/bin/python3 /你的路徑/quicknote/quicknote.py <URL>
 ```
 
-> 注意：路徑要指向虛擬環境裡的 python3（`.venv/bin/python3`），不是系統的 `python3`，這樣才能使用安裝好的套件。
+改成（以 `/Users/yourname/Documents/quicknote` 為例）：
+```
+/Users/yourname/Documents/quicknote/.venv/bin/python3 /Users/yourname/Documents/quicknote/quicknote.py <URL>
+```
+
+> 注意：路徑要指向虛擬環境裡的 python3（`.venv/bin/python3`），不是系統的 `python3`，這樣才能使用安裝好的套件。skill 執行時不會自動啟動虛擬環境，所以必須用完整路徑。
