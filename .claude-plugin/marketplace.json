@@ -1,0 +1,18 @@
+{
+  "name": "quicknote",
+  "description": "給定任意 URL，自動偵測內容類型、擷取內容、生成摘要，存入 Obsidian 隨手筆記資料夾",
+  "owner": {
+    "name": "dk40913"
+  },
+  "plugins": [
+    {
+      "name": "quicknote",
+      "description": "給定任意 URL，自動偵測內容類型、擷取內容、生成摘要，存入 Obsidian 隨手筆記資料夾",
+      "version": "0.1.0",
+      "source": "./",
+      "author": {
+        "name": "dk40913"
+      }
+    }
+  ]
+}

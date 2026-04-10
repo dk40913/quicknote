@@ -97,26 +97,17 @@ python3 quicknote.py https://... --model gemma-4-31b-it
 
 安裝後可以在 Claude Code 對話中直接說「幫我整理這個網址 https://...」來觸發。
 
-```bash
-mkdir -p ~/.claude/plugins/quicknote
-cp skill.md ~/.claude/plugins/quicknote/
+在 Claude Code 對話中執行：
+
+```
+/plugin marketplace add dk40913/quicknote
+/plugin install quicknote@dk40913-quicknote
 ```
 
-編輯 `~/.claude/plugins/quicknote/skill.md`，找到執行指令那行，把佔位符換成你的實際路徑：
+安裝完成後，編輯 `~/.claude/plugins/cache/.../skills/quicknote/SKILL.md`，把路徑改成你的實際位置：
 
-```bash
-# 先確認你的專案路徑
-pwd  # 在 quicknote 目錄下執行，複製這個路徑
-```
-
-把 skill.md 裡的這行：
-```
-/你的路徑/quicknote/.venv/bin/python3 /你的路徑/quicknote/quicknote.py <URL>
-```
-
-改成（以 `/Users/yourname/Documents/quicknote` 為例）：
 ```
 /Users/yourname/Documents/quicknote/.venv/bin/python3 /Users/yourname/Documents/quicknote/quicknote.py <URL>
 ```
 
-> 注意：路徑要指向虛擬環境裡的 python3（`.venv/bin/python3`），不是系統的 `python3`，這樣才能使用安裝好的套件。skill 執行時不會自動啟動虛擬環境，所以必須用完整路徑。
+> 注意：路徑要指向虛擬環境裡的 python3（`.venv/bin/python3`），不是系統的 `python3`。

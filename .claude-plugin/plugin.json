@@ -1,0 +1,19 @@
+{
+  "name": "quicknote",
+  "description": "給定任意 URL，自動偵測內容類型、擷取內容、生成摘要，存入 Obsidian 隨手筆記資料夾",
+  "version": "0.1.0",
+  "author": {
+    "name": "dk40913"
+  },
+  "homepage": "https://github.com/dk40913/quicknote",
+  "repository": "https://github.com/dk40913/quicknote",
+  "license": "MIT",
+  "keywords": [
+    "obsidian",
+    "notes",
+    "summarize",
+    "youtube",
+    "instagram",
+    "webpage"
+  ]
+}
