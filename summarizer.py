@@ -13,14 +13,24 @@ except ImportError:
     genai_types = None
 
 
-def _build_prompt(lang: str) -> str:
+def _build_prompt(lang: str, content_len: int = 0) -> str:
     lang_name = "繁體中文" if lang == "zh-tw" else "English" if lang == "en" else lang
+    if content_len < 500:
+        summary_guide = "2-3句摘要總結"
+    elif content_len < 2000:
+        summary_guide = "3-5句摘要總結"
+    elif content_len < 5000:
+        summary_guide = "5-8句摘要總結"
+    else:
+        summary_guide = "8-12句摘要總結，可分段"
     return f"""請用{lang_name}分析以下內容，回答：
 1. 主題是什麼？
 2. 最重要的關鍵文字或段落？
-3. 3-5句摘要總結
+3. {summary_guide}
 
-最後單獨輸出一行：TITLE: <10字以內的標題>"""
+最後單獨輸出一行：TITLE: <10字以內的標題>
+
+重要：直接輸出分析內容，不要自我介紹或問候語。"""
 
 
 def summarize_with_gemma(
@@ -31,7 +41,9 @@ def summarize_with_gemma(
     if genai is None:
         raise RuntimeError("google-genai 未安裝，請執行：pip install google-genai")
     client = genai.Client(api_key=GOOGLE_API_KEY)
-    prompt = _build_prompt(lang)
+
+    content_len = len(content) if isinstance(content, str) else len(content) * 500
+    prompt = _build_prompt(lang, content_len)
 
     parts = []
     if isinstance(content, str):
