@@ -131,6 +131,9 @@ python3 quicknote.py https://... --model gemma-4-31b-it
 /plugin install quicknote@dk40913-quicknote
 ```
 
+> `/plugin install` 會把 `skills/quicknote/SKILL.md` 複製進 cache，所以**務必先完成第 2 步再安裝**。
+> 若之後需要修改路徑，重新編輯 SKILL.md 後再跑一次 `/plugin install` 即可。
+
 ### 4. 使用
 
 在對話中直接說：

@@ -13,18 +13,18 @@ description: 給定 URL，自動擷取內容、生成摘要，存入 Obsidian �
 需要指向虛擬環境的 python3，確保套件正確載入：
 
 ```
-/你的路徑/quicknote/.venv/bin/python3 /你的路徑/quicknote/quicknote.py <URL>
+/Users/herb/Documents/Claude/Projects/quicknote/.venv/bin/python3 /Users/herb/Documents/Claude/Projects/quicknote/quicknote.py <URL>
 ```
 
 例如：
 ```
-/Users/yourname/Documents/quicknote/.venv/bin/python3 /Users/yourname/Documents/quicknote/quicknote.py <URL>
+/Users/herb/Documents/Claude/Projects/quicknote/.venv/bin/python3 /Users/herb/Documents/Claude/Projects/quicknote/quicknote.py <URL>
 ```
 
 ## 執行步驟
 
 1. 從使用者訊息取出 URL
-2. 執行：`/你的路徑/quicknote/.venv/bin/python3 /你的路徑/quicknote/quicknote.py <URL>`
+2. 執行：`/Users/herb/Documents/Claude/Projects/quicknote/.venv/bin/python3 /Users/herb/Documents/Claude/Projects/quicknote/quicknote.py <URL>`
 3. 回報筆記存入位置
 
 ## 可選參數
