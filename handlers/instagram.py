@@ -73,7 +73,8 @@ def _fetch_post(url: str, lang: str, model: str) -> dict:
     )
     initial_text = text_result.stdout
 
-    match = re.search(r'1/(\d+)', initial_text)
+    # 偵測分段標記，支援 "1/3"、"1 / 3"、"1\n/\n3" 等變體
+    match = re.search(r'1\s*/\s*(\d+)', initial_text)
     total_parts = int(match.group(1)) if match else 1
 
     # 根據段數滾動載入剩餘回覆
