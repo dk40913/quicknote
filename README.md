@@ -15,12 +15,35 @@
 
 ## 需求
 
-- Python 3.11+
+- Python 3.11+（安裝方式見下方）
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 - [ffmpeg](https://ffmpeg.org/)
 - [opencli](https://github.com/opencli/opencli)
 - [notebooklm-py](https://github.com/lspahija/notebooklm-py)
 - Google API Key（免費，申請於 [Google AI Studio](https://aistudio.google.com)）
+
+## 安裝 Python
+
+**macOS 建議用 pyenv 管理 Python 版本：**
+
+```bash
+# 安裝 pyenv
+brew install pyenv
+
+# 安裝 Python 3.11
+pyenv install 3.11.8
+
+# 在專案目錄設定版本
+cd quicknote
+pyenv local 3.11.8
+```
+
+或直接從 [python.org](https://www.python.org/downloads/) 下載安裝 3.11+。
+
+安裝完成後確認版本：
+```bash
+python3 --version  # 應顯示 Python 3.11.x
+```
 
 ## 安裝
 
