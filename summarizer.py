@@ -76,26 +76,25 @@ def summarize_with_notebooklm(url: str, lang: str = "zh-tw") -> str:
 
     notebook_id = result.stdout.strip()
 
-    result = subprocess.run(
-        [NOTEBOOKLM_BIN, "source", "add", notebook_id, url],
-        capture_output=True, text=True, timeout=120
-    )
-    if result.returncode != 0:
-        raise RuntimeError(f"notebooklm source add 失敗: {result.stderr.strip()}")
+    try:
+        result = subprocess.run(
+            [NOTEBOOKLM_BIN, "source", "add", notebook_id, url],
+            capture_output=True, text=True, timeout=120
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"notebooklm source add 失敗: {result.stderr.strip()}")
 
-    question = f"請用{lang_name}摘要這份內容的主題、重點，以及完整總結，重點不遺漏。最後輸出一行：TITLE: <10字以內標題>"
-    result = subprocess.run(
-        [NOTEBOOKLM_BIN, "ask", notebook_id, question],
-        capture_output=True, text=True, timeout=120
-    )
-    if result.returncode != 0:
-        raise RuntimeError(f"notebooklm ask 失敗: {result.stderr.strip()}")
+        question = f"請用{lang_name}摘要這份內容的主題、重點，以及完整總結，重點不遺漏。最後輸出一行：TITLE: <10字以內標題>"
+        result = subprocess.run(
+            [NOTEBOOKLM_BIN, "ask", notebook_id, question],
+            capture_output=True, text=True, timeout=120
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"notebooklm ask 失敗: {result.stderr.strip()}")
 
-    answer = result.stdout.strip()
-
-    subprocess.run(
-        [NOTEBOOKLM_BIN, "delete", notebook_id],
-        capture_output=True, text=True, timeout=120
-    )
-
-    return answer
+        return result.stdout.strip()
+    finally:
+        subprocess.run(
+            [NOTEBOOKLM_BIN, "delete", notebook_id],
+            capture_output=True, text=True, timeout=120
+        )

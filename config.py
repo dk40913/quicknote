@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "")
+if not GOOGLE_API_KEY:
+    raise EnvironmentError("GOOGLE_API_KEY 未設定，請在 .env 填入你的 Google API Key")
 OBSIDIAN_PATH = os.environ.get("OBSIDIAN_PATH", "/Users/herb/Documents/Obsidian")
 DEFAULT_LANG = os.environ.get("QUICKNOTE_LANG", "zh-tw")
 DEFAULT_MODEL = os.environ.get("QUICKNOTE_MODEL", "gemma-4-26b-a4b-it")
