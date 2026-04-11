@@ -10,16 +10,16 @@ def test_youtube_short_url():
     assert detect("https://youtu.be/dQw4w9WgXcQ") == URLType.YOUTUBE
 
 def test_instagram_reel():
-    assert detect("https://www.instagram.com/reels/DVtHqKYiK6n/") == URLType.INSTAGRAM
+    assert detect("https://www.instagram.com/reels/DVtHqKYiK6n/") == URLType.META
 
 def test_instagram_post():
-    assert detect("https://www.instagram.com/p/ABC123/") == URLType.INSTAGRAM
+    assert detect("https://www.instagram.com/p/ABC123/") == URLType.META
 
 def test_threads():
-    assert detect("https://www.threads.net/@user/post/123") == URLType.INSTAGRAM
+    assert detect("https://www.threads.net/@user/post/123") == URLType.META
 
 def test_facebook():
-    assert detect("https://www.facebook.com/video/123") == URLType.INSTAGRAM
+    assert detect("https://www.facebook.com/video/123") == URLType.META
 
 def test_direct_mp4():
     assert detect("https://example.com/video.mp4") == URLType.VIDEO

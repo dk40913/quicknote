@@ -16,12 +16,12 @@ description: 給定 URL，自動擷取內容、生成摘要，存入 Obsidian �
      → 若 `which defuddle` 無結果則執行 `npm install -g defuddle`
    - 若 obsidian-skills 未安裝，提示使用者參考 [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) 安裝
 2. 確認 opencli daemon 在跑：`opencli status` → 若無則執行 `opencli daemon start`
-3. 找到 quicknote 安裝位置：
+3. 找到 quicknote 安裝位置並設定變數：
    ```bash
-   find ~ -maxdepth 8 -name quicknote.py -path "*/quicknote/*" 2>/dev/null | head -1
+   QUICKNOTE_PY=$(find ~ -maxdepth 8 -name quicknote.py -path "*/quicknote/*" 2>/dev/null | head -1)
+   VENV_PYTHON=$(dirname $QUICKNOTE_PY)/.venv/bin/python3
    ```
-   設為 `QUICKNOTE_PY`，對應的 venv python 為 `$(dirname $QUICKNOTE_PY)/.venv/bin/python3`
-   → 若找不到，提示使用者先完成安裝步驟
+   → 若 `QUICKNOTE_PY` 為空，提示使用者先完成安裝步驟
 
 ## 執行步驟
 

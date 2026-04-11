@@ -66,7 +66,7 @@ def main():
         "url": args.url,
         "type": url_type.value,
         "date": date.today().isoformat(),
-        "model": result["processed_by"],
+        "processed_by": result["processed_by"],
         "lang": args.lang,
         "summary": result["summary"],
     }

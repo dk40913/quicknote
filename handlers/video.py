@@ -1,5 +1,6 @@
 # handlers/video.py
 import subprocess
+import tempfile
 from pathlib import Path
 from summarizer import summarize_with_gemma
 from config import YTDLP_BIN, FFMPEG_BIN, DEFAULT_MODEL

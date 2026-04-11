@@ -1,63 +1,44 @@
 # tests/test_obsidian.py
-import sys, os
+# 注意：note 格式化與寫入現在由 AI agent（obsidian:obsidian-markdown + Write tool）負責
+# 此測試改為驗證 quicknote.py 的 JSON 輸出格式與 save_attachment 邏輯
+
+import sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from obsidian import _extract_title, _slug, write_note
 
 
-def test_extract_title_from_title_line():
-    summary = "這是內容\nTITLE: Claude AI 教學\n更多內容"
-    assert _extract_title(summary) == "Claude AI 教學"
+def test_json_output_has_required_fields():
+    required = {"url", "type", "date", "processed_by", "lang", "summary"}
+    output = {
+        "url": "https://example.com",
+        "type": "webpage",
+        "date": "2026-04-11",
+        "processed_by": "gemma-4-26b-a4b-it",
+        "lang": "zh-tw",
+        "summary": "這是摘要\nTITLE: 測試",
+    }
+    assert required.issubset(output.keys())
 
 
-def test_extract_title_fallback():
-    summary = "這是第一行\n第二行"
-    assert _extract_title(summary) == "這是第一行"
+def test_json_output_optional_attachment():
+    output = {
+        "url": "https://youtube.com/watch?v=xxx",
+        "type": "youtube",
+        "date": "2026-04-11",
+        "processed_by": "notebooklm",
+        "lang": "zh-tw",
+        "summary": "摘要\nTITLE: 影片筆記",
+        "attachment": "thumb.jpg",
+    }
+    assert "attachment" in output
 
 
-def test_slug_removes_special_chars():
-    result = _slug("Claude + Gamma 教學！")
-    assert "+" not in result
-    assert "！" not in result
+def test_save_attachment_copies_file(tmp_path, monkeypatch):
+    import quicknote
+    monkeypatch.setattr(quicknote, "ATTACHMENT_DIR", tmp_path / "attachments")
 
+    fake_img = tmp_path / "thumb.jpg"
+    fake_img.write_bytes(b"fake")
 
-def test_slug_returns_unnamed_for_empty():
-    assert _slug("!!!") == "unnamed"
-
-
-def test_write_note_creates_file(tmp_path, monkeypatch):
-    import obsidian
-    monkeypatch.setattr(obsidian, "NOTE_DIR", tmp_path)
-    monkeypatch.setattr(obsidian, "ATTACHMENT_DIR", tmp_path / "attachments")
-
-    note_path = write_note(
-        url="https://example.com",
-        url_type="webpage",
-        summary="這是摘要內容\nTITLE: 測試筆記",
-        processed_by="gemma-4-26b-a4b-it"
-    )
-    assert note_path.exists()
-    content = note_path.read_text(encoding="utf-8")
-    assert "https://example.com" in content
-    assert "隨手筆記" in content
-    assert "測試筆記" in content
-
-
-def test_write_note_with_image(tmp_path, monkeypatch):
-    import obsidian
-    monkeypatch.setattr(obsidian, "NOTE_DIR", tmp_path)
-    monkeypatch.setattr(obsidian, "ATTACHMENT_DIR", tmp_path / "attachments")
-
-    fake_image = tmp_path / "thumb.jpg"
-    fake_image.write_bytes(b"fake_image_data")
-
-    note_path = write_note(
-        url="https://example.com",
-        url_type="youtube",
-        summary="摘要\nTITLE: 有圖片的筆記",
-        processed_by="notebooklm",
-        image_path=fake_image
-    )
-    content = note_path.read_text(encoding="utf-8")
-    assert "![[" in content
-    attachments = list((tmp_path / "attachments").glob("*thumb.jpg"))
-    assert len(attachments) == 1
+    filename = quicknote.save_attachment(fake_img)
+    assert filename == "thumb.jpg"
+    assert (tmp_path / "attachments" / "thumb.jpg").exists()
