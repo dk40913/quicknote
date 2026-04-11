@@ -26,6 +26,14 @@ description: 給定 URL，自動擷取內容、生成摘要，存入 Obsidian �
    VENV_PYTHON=$(dirname $QUICKNOTE_PY)/.venv/bin/python3
    ```
    → 若 `QUICKNOTE_PY` 為空，提示使用者先完成安裝步驟
+5. 確認 `.venv` 已初始化，若不存在則建立：
+   ```bash
+   if [ ! -f "$VENV_PYTHON" ]; then
+     QUICKNOTE_DIR=$(dirname $QUICKNOTE_PY)
+     python3 -m venv $QUICKNOTE_DIR/.venv
+     $QUICKNOTE_DIR/.venv/bin/pip install -r $QUICKNOTE_DIR/requirements.txt -q
+   fi
+   ```
 
 ## 執行步驟
 
