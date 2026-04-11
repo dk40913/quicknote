@@ -1,8 +1,7 @@
 # handlers/webpage.py
 import subprocess
-import time
 from summarizer import summarize_with_notebooklm, summarize_with_gemma
-from config import OPENCLI_BIN, DEFAULT_MODEL
+from config import DEFUDDLE_BIN, DEFAULT_MODEL
 
 
 def fetch(url: str, lang: str = "zh-tw", model: str = DEFAULT_MODEL) -> dict:
@@ -15,21 +14,17 @@ def fetch(url: str, lang: str = "zh-tw", model: str = DEFAULT_MODEL) -> dict:
             "processed_by": "notebooklm"
         }
     except Exception as e:
-        print(f"  NotebookLM 失敗（{e}），切換 OpenCLI fallback...")
+        print(f"  NotebookLM 失敗（{e}），切換 defuddle fallback...")
 
-    # Fallback：OpenCLI 抓網頁文字
-    subprocess.run(
-        [OPENCLI_BIN, "browser", "open", url],
+    # Fallback：defuddle 直接抓 URL → 乾淨 markdown
+    result = subprocess.run(
+        [DEFUDDLE_BIN, "parse", url, "--md"],
         capture_output=True, text=True, timeout=120
     )
-    time.sleep(3)
+    if not result.stdout.strip():
+        raise RuntimeError("defuddle 無法取得頁面內容")
 
-    text_result = subprocess.run(
-        [OPENCLI_BIN, "browser", "eval", "document.body.innerText"],
-        capture_output=True, text=True, timeout=120
-    )
-
-    summary = summarize_with_gemma(text_result.stdout, lang=lang, model=model)
+    summary = summarize_with_gemma(result.stdout, lang=lang, model=model)
 
     return {
         "summary": summary,

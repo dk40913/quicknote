@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
 # quicknote.py
 import argparse
+import json
+import shutil
 import sys
+from datetime import date
+from pathlib import Path
 from router import detect, URLType
-from obsidian import write_note
 import handlers.youtube as youtube_handler
 import handlers.instagram as instagram_handler
 import handlers.webpage as webpage_handler
 import handlers.video as video_handler
-from config import DEFAULT_LANG, DEFAULT_MODEL
+from config import DEFAULT_LANG, DEFAULT_MODEL, OBSIDIAN_PATH
 
 VERSION = "0.1.0"
+
+ATTACHMENT_DIR = Path(OBSIDIAN_PATH) / "隨手筆記" / "attachments"
 
 HANDLER_MAP = {
     URLType.YOUTUBE: youtube_handler,
@@ -19,15 +24,19 @@ HANDLER_MAP = {
     URLType.WEBPAGE: webpage_handler,
 }
 
+
+def save_attachment(image_path: Path) -> str:
+    ATTACHMENT_DIR.mkdir(parents=True, exist_ok=True)
+    dest = ATTACHMENT_DIR / image_path.name
+    shutil.copy2(image_path, dest)
+    return image_path.name
+
+
 def main():
-    parser = argparse.ArgumentParser(
-        description="隨手筆記：URL → Obsidian"
-    )
+    parser = argparse.ArgumentParser(description="隨手筆記：URL → Obsidian")
     parser.add_argument("url", help="要整理的網址")
-    parser.add_argument("--lang", default=DEFAULT_LANG,
-                        help="輸出語言（預設：zh-tw，可選：en）")
-    parser.add_argument("--model", default=DEFAULT_MODEL,
-                        help="Gemma 模型（預設：gemma-4-26b-a4b-it）")
+    parser.add_argument("--lang", default=DEFAULT_LANG)
+    parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument("--version", action="version", version=f"quicknote {VERSION}")
     args = parser.parse_args()
 
@@ -35,7 +44,7 @@ def main():
     try:
         url_type = detect(args.url)
     except ValueError as e:
-        print(f"❌ 無效的 URL：{e}")
+        print(f"❌ 無效的 URL：{e}", file=sys.stderr)
         sys.exit(1)
     print(f"📌 類型：{url_type.value}")
 
@@ -44,28 +53,30 @@ def main():
     try:
         result = handler.fetch(args.url, lang=args.lang, model=args.model)
     except Exception as e:
-        print(f"❌ 處理失敗：{e}")
-        note_path = write_note(
-            url=args.url,
-            url_type=url_type.value,
-            summary=f"處理失敗，請手動整理。\n\n錯誤原因：{e}\nTITLE: 待處理",
-            processed_by="error",
-        )
-        print(f"📝 已存待處理筆記：{note_path}")
+        print(f"❌ 處理失敗：{e}", file=sys.stderr)
         sys.exit(1)
 
+    attachment = None
     tmp_img = result.get("image_path")
-    note_path = write_note(
-        url=args.url,
-        url_type=url_type.value,
-        summary=result["summary"],
-        processed_by=result["processed_by"],
-        image_path=tmp_img,
-        lang=args.lang,
-    )
-    if tmp_img and tmp_img.exists():
-        tmp_img.unlink(missing_ok=True)
-    print(f"✅ 筆記已存入：{note_path}")
+    if tmp_img and Path(str(tmp_img)).exists():
+        attachment = save_attachment(Path(str(tmp_img)))
+        Path(str(tmp_img)).unlink(missing_ok=True)
+
+    output = {
+        "url": args.url,
+        "type": url_type.value,
+        "date": date.today().isoformat(),
+        "model": result["processed_by"],
+        "lang": args.lang,
+        "summary": result["summary"],
+    }
+    if attachment:
+        output["attachment"] = attachment
+
+    print("\n=== QUICKNOTE ===")
+    print(json.dumps(output, ensure_ascii=False, indent=2))
+    print("=== END ===")
+
 
 if __name__ == "__main__":
     main()

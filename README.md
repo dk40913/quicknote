@@ -1,142 +1,89 @@
 # QuickNote 隨手筆記
 
-給定任意 URL，自動偵測內容類型、擷取內容、生成摘要，存入 Obsidian `/隨手筆記/` 資料夾。
+給定任意 URL，自動偵測內容類型、擷取內容、生成摘要，以 Obsidian Flavored Markdown 存入 Obsidian `/隨手筆記/` 資料夾。
 
 ## 支援的 URL 類型
 
 | 類型 | 處理方式 |
 |------|---------|
-| YouTube | NotebookLM 直接分析 |
-| Instagram Reels | yt-dlp 下載 → ffmpeg 抽影格 → Gemma 4 分析 |
-| Instagram 文字貼文 | OpenCLI 抓取 → Gemma 4 摘要 |
-| Threads / Facebook | 同 Instagram |
-| 一般網頁 | NotebookLM（失敗則 OpenCLI fallback）|
-| 直接影片 URL | yt-dlp 下載 → ffmpeg → Gemma 4 |
-
-## 需求
-
-- Python 3.11+（安裝方式見下方）
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp)
-- [ffmpeg](https://ffmpeg.org/)
-- [opencli](https://github.com/opencli/opencli)
-- [notebooklm-py](https://github.com/lspahija/notebooklm-py)
-- Google API Key（免費，申請於 [Google AI Studio](https://aistudio.google.com)）
-
-## 安裝 Python
-
-**macOS 建議用 pyenv 管理 Python 版本：**
-
-```bash
-# 安裝 pyenv
-brew install pyenv
-
-# 安裝 Python 3.11
-pyenv install 3.11.8
-
-# 在專案目錄設定版本
-cd quicknote
-pyenv local 3.11.8
-```
-
-或直接從 [python.org](https://www.python.org/downloads/) 下載安裝 3.11+。
-
-安裝完成後確認版本：
-```bash
-python3 --version  # 應顯示 Python 3.11.x
-```
+| YouTube | NotebookLM 分析 |
+| Instagram Reels | yt-dlp 下載 → ffmpeg 抽影格 → Gemma 4 視覺分析 |
+| Instagram / Facebook 貼文 | OpenCLI 抓取 → defuddle 清理 → Gemma 4 摘要 |
+| Threads | 同 Instagram |
+| 一般網頁 | NotebookLM（失敗則 defuddle → Gemma 4 fallback）|
+| 直接影片 URL（.mp4 / .mov） | yt-dlp 下載 → ffmpeg → Gemma 4 |
 
 ## 安裝
 
-### 1. Clone 專案
+### 讓 AI 幫你安裝（推薦）
+
+把以下訊息貼給你的 AI agent（Claude Code、Codex CLI 等）：
+
+> 請幫我安裝這個 quicknote skill：https://github.com/dk40913/quicknote
+> 需要 clone 專案、建立 Python venv、安裝依賴、設定 .env，並安裝為 plugin。
+
+AI 會引導你完成所有步驟，包含詢問你的 API Key 和 Obsidian vault 路徑。
+
+### 前置需求
+
+AI 安裝過程中會協助確認以下工具是否已安裝：
+
+| 工具 | 用途 |
+|------|------|
+| [obsidian-skills](https://github.com/kepano/obsidian-skills) | 筆記格式化與寫入（含 defuddle） |
+| [yt-dlp](https://github.com/yt-dlp/yt-dlp) + [ffmpeg](https://ffmpeg.org/) | 影片下載與抽影格 |
+| [opencli](https://github.com/opencli/opencli) | 瀏覽器控制（Instagram / Facebook） |
+| [notebooklm-py](https://github.com/lspahija/notebooklm-py) | YouTube / 網頁分析 |
+| Python 3.11+ | 執行環境 |
+| Google API Key | [Google AI Studio](https://aistudio.google.com) 免費申請 |
+
+### 手動安裝
+
+如果你偏好自己動手：
+
+**1. Clone 專案**
 ```bash
 git clone https://github.com/dk40913/quicknote
 cd quicknote
 ```
 
-### 2. 建立 Python 虛擬環境並安裝套件
+**2. 建立 Python 虛擬環境**
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-> 之後每次使用前需要先啟動虛擬環境：`source .venv/bin/activate`
-
-### 3. 安裝外部工具
-
-**yt-dlp**（下載 YouTube / Instagram 影片）和 **ffmpeg**（影片抽影格）：
+**3. 安裝外部工具**
 ```bash
 brew install yt-dlp ffmpeg
-```
-
-**opencli**（控制瀏覽器，用於抓取 Instagram / Threads 文字貼文與一般網頁）和 **notebooklm-py**（用於分析 YouTube 和一般網頁）透過 `uv` 安裝。
-
-若尚未安裝 `uv`（Python 工具管理器）：
-```bash
 brew install uv
-```
-
-然後安裝工具：
-```bash
 uv tool install opencli
 uv tool install notebooklm-py
 ```
 
-### 4. 設定環境變數
+安裝 obsidian-skills：請參考 [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills)
+
+**4. 設定環境變數**
 ```bash
 cp .env.example .env
-# 編輯 .env，填入：
+# 填入：
 # GOOGLE_API_KEY=你的 API Key
 # OBSIDIAN_PATH=/你的/Obsidian/vault路徑
 ```
 
-## 使用方法
-
-```bash
-# 啟動虛擬環境（每次使用前）
-source .venv/bin/activate
-
-# 基本用法
-python3 quicknote.py https://...
-
-# 英文摘要
-python3 quicknote.py https://... --lang en
-
-# 指定模型
-python3 quicknote.py https://... --model gemma-4-31b-it
-```
-
-## Claude Code Skill 安裝
-
-安裝後可以在 Claude Code 對話中直接說「幫我整理這個網址 https://...」來觸發。
-
-### 1. Clone 專案並完成環境設定
-
-先完成上方「安裝」章節的所有步驟（建立 venv、安裝套件、設定 .env）。
-
-### 2. 編輯 SKILL.md，填入你的路徑
-
-編輯 `skills/quicknote/SKILL.md`，把佔位符換成你的實際路徑：
-
-```
-/Users/yourname/Documents/quicknote/.venv/bin/python3 /Users/yourname/Documents/quicknote/quicknote.py <URL>
-```
-
-> 路徑要指向虛擬環境裡的 python3（`.venv/bin/python3`），不是系統的 `python3`。
-
-### 3. 在 Claude Code 中安裝
-
+**5. 安裝 plugin**
 ```
 /plugin marketplace add dk40913/quicknote
 /plugin install quicknote@dk40913-quicknote
 ```
 
-> `/plugin install` 會把 `skills/quicknote/SKILL.md` 複製進 cache，所以**務必先完成第 2 步再安裝**。
-> 若之後需要修改路徑，重新編輯 SKILL.md 後再跑一次 `/plugin install` 即可。
+## 使用
 
-### 4. 使用
+安裝完成後，直接對你的 AI agent 說：
 
-在對話中直接說：
 ```
 幫我整理這個網址 https://...
 ```
+
+AI 會自動抓取、摘要，並以 Obsidian Flavored Markdown 存入你的 Obsidian 筆記庫。
