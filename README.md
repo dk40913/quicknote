@@ -140,6 +140,9 @@ claude plugin update quicknote@quicknote
 
 ## 版本紀錄
 
+### v0.3.1
+- 前置檢查加入 `.venv` 初始化步驟，若不存在則自動建立並安裝依賴，避免 exit code 127
+
 ### v0.3.0
 - 修正 SKILL.md 錯誤指令（opencli status → opencli doctor）
 - SKILL.md 加入 yt-dlp / ffmpeg / notebooklm-py 前置檢查
