@@ -13,20 +13,12 @@ except ImportError:
     genai_types = None
 
 
-def _build_prompt(lang: str, content_len: int = 0) -> str:
+def _build_prompt(lang: str) -> str:
     lang_name = "繁體中文" if lang == "zh-tw" else "English" if lang == "en" else lang
-    if content_len < 500:
-        summary_guide = "2-3句摘要總結"
-    elif content_len < 2000:
-        summary_guide = "3-5句摘要總結"
-    elif content_len < 5000:
-        summary_guide = "5-8句摘要總結"
-    else:
-        summary_guide = "8-12句摘要總結，可分段"
     return f"""請用{lang_name}分析以下內容，回答：
 1. 主題是什麼？
 2. 最重要的關鍵文字或段落？
-3. {summary_guide}
+3. 完整摘要總結，依內容豐富度自行決定長度，重點不遺漏
 
 最後單獨輸出一行：TITLE: <10字以內的標題>
 
@@ -34,27 +26,29 @@ def _build_prompt(lang: str, content_len: int = 0) -> str:
 
 
 def summarize_with_gemma(
-    content: Union[str, list[Path]],
+    text: str = "",
+    frames: list[Path] = None,
     lang: str = "zh-tw",
     model: str = DEFAULT_MODEL
 ) -> str:
     if genai is None:
         raise RuntimeError("google-genai 未安裝，請執行：pip install google-genai")
     client = genai.Client(api_key=GOOGLE_API_KEY)
-
-    content_len = len(content) if isinstance(content, str) else len(content) * 500
-    prompt = _build_prompt(lang, content_len)
+    prompt = _build_prompt(lang)
 
     parts = []
-    if isinstance(content, str):
-        parts.append(content + "\n\n" + prompt)
-    else:
-        for frame_path in content:
+    if text:
+        parts.append(text + "\n\n")
+    if frames:
+        for frame_path in frames:
             parts.append(genai_types.Part.from_bytes(
                 data=frame_path.read_bytes(),
                 mime_type="image/jpeg"
             ))
-        parts.append(prompt)
+    parts.append(prompt)
+
+    if not parts or parts == [prompt]:
+        raise RuntimeError("沒有可分析的內容")
 
     for attempt in range(3):
         try:
@@ -67,7 +61,7 @@ def summarize_with_gemma(
                 print(f"  Rate limit，等待 {wait} 秒後重試（{attempt + 1}/3）...")
                 time.sleep(wait)
             else:
-                raise  # re-raises on final attempt or non-rate-limit errors
+                raise
 
 
 def summarize_with_notebooklm(url: str, lang: str = "zh-tw") -> str:
@@ -84,12 +78,12 @@ def summarize_with_notebooklm(url: str, lang: str = "zh-tw") -> str:
 
     result = subprocess.run(
         [NOTEBOOKLM_BIN, "source", "add", notebook_id, url],
-        capture_output=True, text=True, timeout=60
+        capture_output=True, text=True, timeout=120
     )
     if result.returncode != 0:
         raise RuntimeError(f"notebooklm source add 失敗: {result.stderr.strip()}")
 
-    question = f"請用{lang_name}摘要這份內容的主題、重點，以及3-5句總結。最後輸出一行：TITLE: <10字以內標題>"
+    question = f"請用{lang_name}摘要這份內容的主題、重點，以及完整總結，重點不遺漏。最後輸出一行：TITLE: <10字以內標題>"
     result = subprocess.run(
         [NOTEBOOKLM_BIN, "ask", notebook_id, question],
         capture_output=True, text=True, timeout=120
@@ -99,7 +93,6 @@ def summarize_with_notebooklm(url: str, lang: str = "zh-tw") -> str:
 
     answer = result.stdout.strip()
 
-    # 清理 notebook，避免污染帳號
     subprocess.run(
         [NOTEBOOKLM_BIN, "delete", notebook_id],
         capture_output=True, text=True, timeout=120

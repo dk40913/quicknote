@@ -24,7 +24,7 @@ def fetch(url: str, lang: str = "zh-tw", model: str = DEFAULT_MODEL) -> dict:
     if not result.stdout.strip():
         raise RuntimeError("defuddle 無法取得頁面內容")
 
-    summary = summarize_with_gemma(result.stdout, lang=lang, model=model)
+    summary = summarize_with_gemma(text=result.stdout, lang=lang, model=model)
 
     return {
         "summary": summary,

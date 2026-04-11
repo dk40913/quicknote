@@ -30,7 +30,7 @@ def fetch(url: str, lang: str = "zh-tw", model: str = DEFAULT_MODEL) -> dict:
         if not frames:
             raise RuntimeError("影格抽取失敗")
 
-        summary = summarize_with_gemma(frames, lang=lang, model=model)
+        summary = summarize_with_gemma(frames=frames, lang=lang, model=model)
 
         return {
             "summary": summary,
