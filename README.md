@@ -86,3 +86,28 @@ cp .env.example .env
 ```
 
 AI 會自動抓取、摘要，並以 Obsidian Flavored Markdown 存入你的 Obsidian 筆記庫。
+
+## 更新
+
+當新版本發布後，在 Claude Code 對話中執行：
+
+```
+/plugin update quicknote@quicknote
+```
+
+或使用終端機：
+
+```bash
+claude plugin update quicknote@quicknote
+```
+
+## 版本紀錄
+
+### v0.2.0
+- 修正 scroll 偵測（regex 精確化 + fallback 固定滾 3 次）
+- 修正多個 critical / important 穩定性問題
+- 修正兩個 suggestion 問題
+
+### v0.1.0
+- 初始版本，支援 YouTube、Meta、一般網頁、直接影片 URL
+- Claude Code plugin 結構，支援 `/plugin install` 安裝
