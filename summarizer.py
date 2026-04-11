@@ -36,6 +36,10 @@ def summarize_with_gemma(
     client = genai.Client(api_key=GOOGLE_API_KEY)
     prompt = _build_prompt(lang)
 
+    has_content = bool(text) or bool(frames)
+    if not has_content:
+        raise RuntimeError("沒有可分析的內容")
+
     parts = []
     if text:
         parts.append(text + "\n\n")
@@ -46,9 +50,6 @@ def summarize_with_gemma(
                 mime_type="image/jpeg"
             ))
     parts.append(prompt)
-
-    if not parts or parts == [prompt]:
-        raise RuntimeError("沒有可分析的內容")
 
     for attempt in range(3):
         try:

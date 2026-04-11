@@ -71,7 +71,7 @@ cp .env.example .env
 # OBSIDIAN_PATH=/你的/Obsidian/vault路徑
 ```
 
-**5. 安裝 plugin**
+**5. 安裝 plugin（在 Claude Code 對話中執行）**
 ```
 /plugin marketplace add dk40913/quicknote
 /plugin install quicknote@dk40913-quicknote
