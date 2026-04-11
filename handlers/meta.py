@@ -22,13 +22,19 @@ def _fetch_text(url: str) -> str:
     )
     initial_html = html_result.stdout
 
-    # 偵測分段標記，支援 "1/3"、"1 / 3" 等變體
-    match = re.search(r'1\s*/\s*(\d+)', initial_html)
-    total_parts = int(match.group(1)) if match else 1
+    # 偵測分段標記（如 "1/3"、"1 / 3"），抓不到則 fallback 固定滾 3 次
+    FALLBACK_SCROLLS = 3
+    match = re.search(r'(?<!\d)1\s*/\s*([2-9]\d*)(?!\d)', initial_html)
+    if match:
+        total_parts = int(match.group(1))
+        scroll_times = total_parts - 1
+        print(f"  偵測到 {total_parts} 段回覆，滾動 {scroll_times} 次...")
+    else:
+        scroll_times = FALLBACK_SCROLLS
+        print(f"  未偵測到分段，fallback 滾動 {scroll_times} 次...")
 
-    if total_parts > 1:
-        print(f"  偵測到 {total_parts} 段回覆，滾動載入...")
-        for _ in range(total_parts - 1):
+    if scroll_times > 0:
+        for _ in range(scroll_times):
             subprocess.run(
                 [OPENCLI_BIN, "browser", "eval", "window.scrollBy(0, window.innerHeight)"],
                 capture_output=True, text=True, timeout=120
