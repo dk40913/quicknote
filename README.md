@@ -7,9 +7,8 @@
 | 類型 | 處理方式 |
 |------|---------|
 | YouTube | NotebookLM 分析 |
-| Instagram Reels | yt-dlp 下載 → ffmpeg 抽影格 → Gemma 4 視覺分析 |
-| Instagram / Facebook 貼文 | OpenCLI 抓取 → defuddle 清理 → Gemma 4 摘要 |
-| Threads | 同 Instagram |
+| Meta 貼文（Instagram / Facebook / Threads）| OpenCLI 抓取 → defuddle 清理 → Gemma 4 摘要 |
+| Meta 影片（Reels / FB 影片）| 同時抓文字 + yt-dlp 下載影片 → ffmpeg 抽影格 → Gemma 4 視覺+文字分析 |
 | 一般網頁 | NotebookLM（失敗則 defuddle → Gemma 4 fallback）|
 | 直接影片 URL（.mp4 / .mov） | yt-dlp 下載 → ffmpeg → Gemma 4 |
 

@@ -8,7 +8,7 @@ from datetime import date
 from pathlib import Path
 from router import detect, URLType
 import handlers.youtube as youtube_handler
-import handlers.instagram as instagram_handler
+import handlers.meta as meta_handler
 import handlers.webpage as webpage_handler
 import handlers.video as video_handler
 from config import DEFAULT_LANG, DEFAULT_MODEL, OBSIDIAN_PATH
@@ -19,7 +19,7 @@ ATTACHMENT_DIR = Path(OBSIDIAN_PATH) / "隨手筆記" / "attachments"
 
 HANDLER_MAP = {
     URLType.YOUTUBE: youtube_handler,
-    URLType.INSTAGRAM: instagram_handler,
+    URLType.META: meta_handler,
     URLType.VIDEO: video_handler,
     URLType.WEBPAGE: webpage_handler,
 }

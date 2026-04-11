@@ -5,7 +5,7 @@ from enum import Enum
 
 class URLType(Enum):
     YOUTUBE = "youtube"
-    INSTAGRAM = "instagram"
+    META = "meta"
     VIDEO = "video"
     WEBPAGE = "webpage"
 
@@ -21,7 +21,7 @@ def detect(url: str) -> URLType:
     if "youtube.com" in host or "youtu.be" in host:
         return URLType.YOUTUBE
     if "instagram.com" in host or "threads.net" in host or "threads.com" in host or "facebook.com" in host:
-        return URLType.INSTAGRAM
+        return URLType.META
     if PurePosixPath(parsed.path).suffix.lower() in {".mp4", ".mov", ".webm"}:
         return URLType.VIDEO
     return URLType.WEBPAGE

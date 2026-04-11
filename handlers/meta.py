@@ -1,4 +1,4 @@
-# handlers/instagram.py
+# handlers/meta.py
 import re
 import subprocess
 import tempfile
