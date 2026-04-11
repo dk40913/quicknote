@@ -1,7 +1,7 @@
 {
   "name": "quicknote",
   "description": "給定任意 URL，自動偵測內容類型、擷取內容、生成摘要，存入 Obsidian 隨手筆記資料夾",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": {
     "name": "dk40913"
   },

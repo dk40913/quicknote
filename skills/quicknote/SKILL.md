@@ -15,8 +15,12 @@ description: 給定 URL，自動擷取內容、生成摘要，存入 Obsidian �
    - `obsidian:defuddle`（需 defuddle CLI）：清理網頁 HTML
      → 若 `which defuddle` 無結果則執行 `npm install -g defuddle`
    - 若 obsidian-skills 未安裝，提示使用者參考 [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) 安裝
-2. 確認 opencli daemon 在跑：`opencli status` → 若無則執行 `opencli daemon start`
-3. 找到 quicknote 安裝位置並設定變數：
+2. 確認 opencli 正常運作：執行 `opencli doctor` → daemon 會自動啟動，若 Extension 未連線則提示使用者確認 Chrome 已安裝 opencli Browser Bridge extension
+3. 確認以下 CLI 工具已安裝，若無則協助安裝：
+   - `yt-dlp`：影片下載 → `brew install yt-dlp`
+   - `ffmpeg`：影格擷取 → `brew install ffmpeg`
+   - `notebooklm-py`：YouTube / 網頁分析 → `uv tool install notebooklm-py`
+4. 找到 quicknote 安裝位置並設定變數：
    ```bash
    QUICKNOTE_PY=$(find ~ -maxdepth 8 -name quicknote.py -path "*/quicknote/*" 2>/dev/null | head -1)
    VENV_PYTHON=$(dirname $QUICKNOTE_PY)/.venv/bin/python3
@@ -28,7 +32,7 @@ description: 給定 URL，自動擷取內容、生成摘要，存入 Obsidian �
 1. 從使用者訊息取出 URL
 2. 執行（不設 timeout，由程式碼內部控制）：
    ```bash
-   $VENV_PYTHON $QUICKNOTE_PY <URL>
+   $VENV_PYTHON $QUICKNOTE_PY '<URL>'
    ```
 3. 讀取輸出中 `=== QUICKNOTE ===` 和 `=== END ===` 之間的 JSON
 4. 使用 `obsidian:obsidian-markdown` skill 將 JSON 的 `summary` 格式化為 Obsidian Flavored Markdown，包含：
