@@ -140,6 +140,10 @@ claude plugin update quicknote@quicknote
 
 ## 版本紀錄
 
+### v0.3.2
+- 修正 `notebooklm` CLI 參數錯誤：`create` 改用位置參數、`source add`/`ask`/`delete` 改用 `--notebook`
+- 修正 `notebook_id` 解析（從 `Created notebook: <id> - <title>` 輸出擷取）
+
 ### v0.3.1
 - 前置檢查加入 `.venv` 初始化步驟，若不存在則自動建立並安裝依賴，避免 exit code 127
 

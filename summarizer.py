@@ -69,17 +69,22 @@ def summarize_with_notebooklm(url: str, lang: str = "zh-tw") -> str:
     lang_name = "繁體中文" if lang == "zh-tw" else "English"
 
     result = subprocess.run(
-        [NOTEBOOKLM_BIN, "create", "--name", f"quicknote_{int(time.time())}"],
+        [NOTEBOOKLM_BIN, "create", f"quicknote_{int(time.time())}"],
         capture_output=True, text=True, timeout=120
     )
     if result.returncode != 0:
         raise RuntimeError(f"notebooklm create 失敗: {result.stderr.strip()}")
 
-    notebook_id = result.stdout.strip()
+    # 輸出格式：Created notebook: <id> - <title>
+    import re
+    match = re.search(r'Created notebook:\s+([a-f0-9\-]+)', result.stdout)
+    if not match:
+        raise RuntimeError(f"無法解析 notebook ID，輸出：{result.stdout.strip()}")
+    notebook_id = match.group(1)
 
     try:
         result = subprocess.run(
-            [NOTEBOOKLM_BIN, "source", "add", notebook_id, url],
+            [NOTEBOOKLM_BIN, "source", "add", "--notebook", notebook_id, url],
             capture_output=True, text=True, timeout=120
         )
         if result.returncode != 0:
@@ -87,7 +92,7 @@ def summarize_with_notebooklm(url: str, lang: str = "zh-tw") -> str:
 
         question = f"請用{lang_name}摘要這份內容的主題、重點，以及完整總結，重點不遺漏。最後輸出一行：TITLE: <10字以內標題>"
         result = subprocess.run(
-            [NOTEBOOKLM_BIN, "ask", notebook_id, question],
+            [NOTEBOOKLM_BIN, "ask", "--notebook", notebook_id, question],
             capture_output=True, text=True, timeout=120
         )
         if result.returncode != 0:
@@ -96,6 +101,6 @@ def summarize_with_notebooklm(url: str, lang: str = "zh-tw") -> str:
         return result.stdout.strip()
     finally:
         subprocess.run(
-            [NOTEBOOKLM_BIN, "delete", notebook_id],
+            [NOTEBOOKLM_BIN, "delete", "--notebook", notebook_id, "--yes"],
             capture_output=True, text=True, timeout=120
         )
